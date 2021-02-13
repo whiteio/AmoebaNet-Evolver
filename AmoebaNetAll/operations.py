@@ -40,34 +40,6 @@ class FactorizedReduce(nn.Module):
         return x
 
 
-class SeparableConv2d(nn.Module):
-    def __init__(self, in_channels, out_channels, stride=0, kernel_size=(1,1), bias=False):
-        super(SeparableConv2d, self).__init__()
-        self.depthwise = nn.Conv2d(in_channels, in_channels, kernel_size=kernel_size, 
-                                   groups=in_channels, bias=bias, padding=1)
-        self.pointwise = nn.Conv2d(in_channels, out_channels, 
-                                   kernel_size=1, bias=bias)
-
-    def forward(self, x):
-        out = self.depthwise(x)
-        out = self.pointwise(out)
-        return out
-
-
-class DilatedSeparableConv2d(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=(1,1), stride=1, dilation=1, bias=False):
-        super(DilatedSeparableConv2d, self).__init__()
-        self.depthwise = nn.Conv2d(in_channels, in_channels, kernel_size=kernel_size, 
-                                   groups=in_channels, bias=bias, padding=1, dilation=2)
-        self.pointwise = nn.Conv2d(in_channels, out_channels, 
-                                   kernel_size=1, bias=bias)
-
-    def forward(self, x):
-        out = self.depthwise(x)
-        out = self.pointwise(out)
-        return out
-
-
 def none(channels: int, stride: int) -> Operation:
     module: nn.Module
     if stride == 1:
@@ -143,56 +115,101 @@ def conv_3x3(channels: int, stride: int) -> Operation:
 
 
 def separable_7x7_2(channels: int, stride: int) -> Operation:
-    # s_stacked = torch.nn.Sequential(s1, s2)
-    num_layers = 2
-    seqs = []
-    for i in range(num_layers - 1):
-        seq_1 = SeparableConv2d(channels, channels, kernel_size=(7,7), stride=stride)
-        seqs.append(seq_1)
-    seq_2 = SeparableConv2d(channels, channels, kernel_size=(7,7), stride=stride)
-    seqs.append(seq_2)
-    module = nn.Sequential(*seqs)
+    c = channels
+    module = nn.Sequential(
+        nn.ReLU(inplace=False),
+        nn.Conv2d(c, c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=7, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=7, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(c//4, c, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c),
+    )
 
     return Operation('separable_7x7_2', module)
 
 
 def separable_3x3_2(channels: int, stride: int) -> Operation:
-    num_layers = 2
-    seqs = []
-    for i in range(num_layers - 1):
-        seq_1 = SeparableConv2d(channels, channels, (3, 3), stride)
-        seqs.append(seq_1)
-    seq_2 = SeparableConv2d(channels, channels, (3, 3), stride)
-    seqs.append(seq_2)
-    module = nn.Sequential(*seqs)
+    c = channels
+    module = nn.Sequential(
+        nn.ReLU(inplace=False),
+        nn.Conv2d(c, c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=3, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=3, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(c//4, c, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c),
+    )
 
     return Operation('seperable_3x3_2', module)
 
 
 def separable_5x5_2(channels: int, stride: int) -> Operation:
-    num_layers = 2
-    seqs = []
-    for i in range(num_layers - 1):
-        seq_1 = SeparableConv2d(channels, channels, (5, 5), stride)
-        seqs.append(seq_1)
-    seq_2 = SeparableConv2d(channels, channels, (5, 5), stride)
-    seqs.append(seq_2)
-    module = nn.Sequential(*seqs)
+    c = channels
+    module = nn.Sequential(
+        nn.ReLU(inplace=False),
+        nn.Conv2d(c, c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
 
-    return Operation('separable_5x5_2', module)
+        nn.ReLU(inplace=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(c//4, c, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c),
+    )
+
+    return Operation('seperable_5x5_2', module)
 
 
 def dil_2_separable_5x5_2(channels: int, stride: int) -> Operation:
-    num_layers = 2
-    seqs = []
-    for i in range(num_layers - 1):
-        seq_1 = DilatedSeparableConv2d(channels, channels, (5, 5), stride, dilation=2)
-        seqs.append(seq_1)
-    seq_2 = DilatedSeparableConv2d(channels, channels, (5, 5), stride, dilation=2)
-    seqs.append(seq_2)
-    module = nn.Sequential(*seqs)
+    c = channels
+    module = nn.Sequential(
+        nn.ReLU(inplace=False),
+        nn.Conv2d(c, c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, bias=False, dilation=2),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, bias=False, dilation=2),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c//4),
+
+        nn.ReLU(inplace=False),
+        nn.Conv2d(c//4, c, kernel_size=1, bias=False),
+        nn.BatchNorm2d(c),
+    )
 
     return Operation('dil_2_seperable_5x5_2', module)
-
-
 
