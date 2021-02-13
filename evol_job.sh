@@ -1,10 +1,10 @@
 #!/bin/bash -l
-#SBATCH --job-name=BalancedVersion
+#SBATCH --job-name=Evolver
 #SBATCH --partition=gpu
 #SBATCH --output=job-%j.out
 #SBATCH --mem 32000M
-#SBATCH --time=36:00:00
-#SBATCH --gres=gpu:4
+#SBATCH --time=00:10:00
+#SBATCH --gres=gpu:2
 #SBATCH --mail-user=cwhite31@qub.ac.uk
 #SBATCH --mail-type=END
 

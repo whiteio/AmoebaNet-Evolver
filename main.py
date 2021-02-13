@@ -149,7 +149,7 @@ if __name__ == "__main__":
         population.put(dict(id=i, score=0))
 
     workers = []
-    for i in range(0,4):
+    for i in range(0,2):
         workers.append(Worker(mutation_count, mutation_search_max_count, population, finish_tasks, f"cuda:{i}"))
   
     print("Created workers")

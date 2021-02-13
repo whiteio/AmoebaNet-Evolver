@@ -22,10 +22,11 @@ NUM_NORMAL = 3
 NUM_FILTERS = 100
 
 def get_model():
+    # IMPORTANT! - FIRST OPERATION SHOULD BE CONV_1X1
     """Returns model with random mutation to a single op"""
     # Create method in amoeba that randomly mutates an op
     NORMAL_OPERATIONS = [
-        (1, conv_1x1),
+        (1, dil_2_separable_5x5_2),
         (1, max_pool_3x3),
         (1, none),
         (0, conv_1x7_7x1),

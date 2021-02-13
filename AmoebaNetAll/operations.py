@@ -122,12 +122,12 @@ def separable_7x7_2(channels: int, stride: int) -> Operation:
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=7, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=7, stride=stride, padding=3, bias=False),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=7, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=7, stride=stride, padding=3, bias=False),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
@@ -147,12 +147,12 @@ def separable_3x3_2(channels: int, stride: int) -> Operation:
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=3, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=3, stride=stride, padding=1, bias=False),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=3, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=3, stride=stride, padding=1, bias=False),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
@@ -172,12 +172,12 @@ def separable_5x5_2(channels: int, stride: int) -> Operation:
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, padding=2, bias=False),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, padding=2, bias=False),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
@@ -197,12 +197,12 @@ def dil_2_separable_5x5_2(channels: int, stride: int) -> Operation:
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, bias=False, dilation=2),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, padding=4, bias=False, dilation=2),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, bias=False, dilation=2),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, padding=4, bias=False, dilation=2),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 

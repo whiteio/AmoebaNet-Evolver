@@ -139,7 +139,7 @@ class Cell(nn.Module):
 
             h1 = op1(h1)
             h2 = op2(h2)
-
+            
             s = h1 + h2
             _states.append(s)
 
