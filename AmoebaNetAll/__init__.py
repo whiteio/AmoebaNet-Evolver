@@ -204,7 +204,7 @@ def amoebanet(num_classes: int = 10,
 
     # Finally, classifier
     layers['classify'] = Classify(channels_prev, num_classes)
-
+    print("Created Amoeba Model")
     return nn.Sequential(layers)
 
     

@@ -119,6 +119,7 @@ class Explorer(mp.Process):
                 for task in tasks:
                     # Add tasks to population for processing
                     self.population.put(task)
+                print(f"New tasks added to queue after mutating, Count: {len(tasks)}") 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Population Based Training")
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
     population_size = args.population_size
     batch_size = 16
-    mutation_search_max_count = 8
+    mutation_search_max_count = 4
 
     pathlib.Path('checkpoints').mkdir(exist_ok=True)
     checkpoint_str = "checkpoints/task-%03d.pth"

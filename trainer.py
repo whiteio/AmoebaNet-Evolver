@@ -50,11 +50,13 @@ class Trainer:
 
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
-
+        
         data_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
-            transforms.Resize(299),
-            transforms.CenterCrop(299),
+            transforms.Resize(224),
+            transforms.CenterCrop(224),
+            transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
+            transforms.RandomAffine(degrees=10, scale=(.95, 1.05), shear=0),
             transforms.ToTensor(),
             transforms.Normalize(mean, std)
         ])
@@ -71,7 +73,8 @@ class Trainer:
             num_workers=8)
 
         lr = 0.01
-        for epoch in range(3):
+        print(f"About to begin training on device: {self.device}")
+        for epoch in range(0):
             for x, y, _ in dataloader:
                 x, y = Variable(x.to(self.device)), Variable(y.to(self.device)).float()
                 output = self.model(x)
@@ -83,6 +86,7 @@ class Trainer:
 
             lr *= 0.95
             self.optimizer = get_optimizer(self.model, lr)
+            print("Epoch complete")
 
 
     def compute_AUCs(self, gt, pred):
@@ -106,8 +110,8 @@ class Trainer:
 
         data_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
-            transforms.Resize(299),
-            transforms.CenterCrop(299),
+            transforms.Resize(224),
+            transforms.CenterCrop(224),
             transforms.ToTensor(),
             transforms.Normalize(mean, std)
         ])
@@ -133,8 +137,8 @@ class Trainer:
 
         test_dataset = ChestXrayDataSet(data_dir="/mnt/scratch2/users/40175159/chest-data/chest-images", image_list_file="./labels/test_list.txt",
                                     transform=transforms.Compose([
-                                        transforms.Resize(340),
-                                        transforms.TenCrop(299),
+                                        transforms.Resize(256),
+                                        transforms.TenCrop(224),
                                         transforms.Lambda
                                         (lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops])),
                                         transforms.Lambda
@@ -143,6 +147,7 @@ class Trainer:
         test_loader = DataLoader(dataset=test_dataset, batch_size=16,
                              shuffle=False, num_workers=0, pin_memory=True)
 
+        print(f"About to evaluate on device {self.device}")
         for i, (inp, target) in enumerate(test_loader):
             with torch.no_grad():
                 target = target.to(self.device)
@@ -153,7 +158,7 @@ class Trainer:
                 output_mean = output.view(bs, n_crops, -1).mean(1)
                 pred = torch.cat((pred, output_mean.data), 0)
 
-        AUROCs = compute_AUCs(gt, pred)
+        AUROCs = self.compute_AUCs(gt, pred)
         AUROC_avg = np.array(AUROCs).mean()
 
         return AUROC_avg

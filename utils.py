@@ -9,7 +9,6 @@ from AmoebaNetAll.operations import (none,
         max_pool_3x3,
         max_pool_2x2,
         conv_1x7_7x1,
-#        conv_1x7_2x2,
         conv_1x1,
         conv_3x3,
         separable_7x7_2,
@@ -26,11 +25,11 @@ def get_model():
     """Returns model with random mutation to a single op"""
     # Create method in amoeba that randomly mutates an op
     NORMAL_OPERATIONS = [
-        (1, dil_2_separable_5x5_2),
+        (1, conv_1x1),
         (1, max_pool_3x3),
         (1, none),
         (0, conv_1x7_7x1),
-        (0, conv_1x1),
+        (0, conv_1x1), 
         (0, conv_1x7_7x1),
         (2, max_pool_3x3),
         (2, none),
@@ -73,7 +72,6 @@ def get_replacement_op(current_op):
         max_pool_3x3,
         max_pool_2x2,
         conv_1x7_7x1,
-        conv_1x7_7x1, # Needs changed to 2x2 - look at nas ops
         conv_1x1,
         conv_3x3,
         separable_7x7_2,
@@ -82,7 +80,7 @@ def get_replacement_op(current_op):
         dil_2_separable_5x5_2
     ]
 
-    new_op_index = random.randint(0, 10)
+    new_op_index = random.randint(0, 9)
 
     if nas_space[new_op_index] == current_op:
         return get_replacement_op(current_op)
