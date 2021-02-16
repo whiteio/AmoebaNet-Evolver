@@ -85,6 +85,7 @@ def conv_1x7_7x1(channels: int, stride: int) -> Operation:
     )
     return Operation('conv_1x7_7x1', module)
 
+
 def conv_1x1(channels: int, stride: int) -> Operation:
     c = channels
     module = nn.Sequential(
@@ -121,7 +122,7 @@ def separable_7x7_2(channels: int, stride: int) -> Operation:
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=7, stride=stride, padding=3, groups=c//4, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=7, padding=3, groups=c//4, bias=False),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
@@ -146,7 +147,7 @@ def separable_3x3_2(channels: int, stride: int) -> Operation:
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=3, stride=stride, padding=1, groups=c//4, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=3, padding=1, groups=c//4, bias=False),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
@@ -171,7 +172,7 @@ def separable_5x5_2(channels: int, stride: int) -> Operation:
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, padding=2, groups=c//4, bias=False),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, padding=2, groups=c//4, bias=False),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 
@@ -196,7 +197,7 @@ def dil_2_separable_5x5_2(channels: int, stride: int) -> Operation:
         nn.BatchNorm2d(c//4),
 
         nn.ReLU(inplace=False),
-        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, stride=stride, padding=4, groups=c//4, bias=False, dilation=2),
+        nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=5, padding=4, groups=c//4, bias=False, dilation=2),
         nn.Conv2d(in_channels=c//4, out_channels=c//4, kernel_size=1, bias=False),
         nn.BatchNorm2d(c//4),
 

@@ -133,10 +133,11 @@ class Cell(nn.Module):
         for i in range(0, len(operations), 2):
             h1 = _states[indices[i]]
             h2 = _states[indices[i+1]]
-
+            
             op1 = operations[i]
             op2 = operations[i+1]
-
+            print("Operation 1: ", op1)
+            print("Operation 2: ", op2)
             h1 = op1(h1)
             h2 = op2(h2)
             

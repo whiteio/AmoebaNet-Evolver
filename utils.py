@@ -24,6 +24,7 @@ def get_model():
     # IMPORTANT! - FIRST OPERATION SHOULD BE CONV_1X1
     """Returns model with random mutation to a single op"""
     # Create method in amoeba that randomly mutates an op
+    print("Getting initial model")
     NORMAL_OPERATIONS = [
         (1, conv_1x1),
         (1, max_pool_3x3),
@@ -67,6 +68,7 @@ def get_optimizer(model, LR):
     return optimizer
 
 def get_replacement_op(current_op):
+    print("Getting replacement op")
     nas_space = [
         avg_pool_3x3,
         max_pool_3x3,
@@ -98,7 +100,7 @@ def exploit_and_explore(top_checkpoint_path, bot_checkpoint_path):
     checkpoint = torch.load(top_checkpoint_path)
     normal_ops = checkpoint['normal_ops']
     reduction_ops = checkpoint['reduction_ops']
-
+    print("Making mutation")
     ops = [normal_ops, reduction_ops]
 
     type_to_mutate = random.randint(0,1)

@@ -9,7 +9,7 @@ from readData import ChestXrayDataSet
 import torch.backends.cudnn as cudnn
 from sklearn import metrics
 import AmoebaNetAll as amoeba
-
+import numpy as np
 import random
 
 class Trainer:
@@ -24,6 +24,8 @@ class Trainer:
         self.loss_fn = loss_fn
         self.task_id = None
         self.device = device
+
+        self.loss_fn = self.loss_fn.to(device)
 
     def set_id(self, num):
         self.task_id = num
@@ -94,7 +96,10 @@ class Trainer:
         gt_np = gt.cpu().numpy()
         pred_np = pred.cpu().numpy()
         for i in range(14):
-            AUROCs.append(metrics.roc_auc_score(gt_np[i], pred_np[i]))
+            try:
+                AUROCs.append(metrics.roc_auc_score(gt_np[:, i], pred_np[:, i]))
+            except ValueError:
+                pass
         return AUROCs
 
 
@@ -104,28 +109,6 @@ class Trainer:
 
         cudnn.benchmark = True
         """Evaluate model on the provided validation or test set."""
-
-        mean = [0.485, 0.456, 0.406]
-        std = [0.229, 0.224, 0.225]
-
-        data_transforms = transforms.Compose([
-            transforms.RandomHorizontalFlip(),
-            transforms.Resize(224),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean, std)
-        ])
-
-        transformed_dataset = CXR.CXRDataset(
-            path_to_images="/mnt/scratch2/users/40175159/chest-data/chest-images",
-            fold='test',
-            transform=data_transforms)
-
-        dataloader = torch.utils.data.DataLoader(
-            transformed_dataset,
-            batch_size=16,
-            shuffle=True,
-            num_workers=8)
 
         gt = torch.FloatTensor()
         gt = gt.to(self.device)
@@ -153,13 +136,15 @@ class Trainer:
                 target = target.to(self.device)
                 gt = torch.cat((gt, target), 0)
                 bs, n_crops, c, h, w = inp.size()
-                input_var = torch.autograd.Variable(inp.view(-1, c, h, w).to(self.device))
+                input_var = torch.autograd.Variable(inp.view(-1, c, h, w))
+                input_var = input_var.to(self.device)
+                self.model = self.model.to(self.device)
                 output = self.model(input_var)
                 output_mean = output.view(bs, n_crops, -1).mean(1)
                 pred = torch.cat((pred, output_mean.data), 0)
+                break # REMOVE THIS WHEN ACTUALLY DOING IT
 
         AUROCs = self.compute_AUCs(gt, pred)
         AUROC_avg = np.array(AUROCs).mean()
-
-        return AUROC_avg
-                                        
+        print("Finished eval aucroc is: ", AUROC_avg)
+        return AUROC_avg       
