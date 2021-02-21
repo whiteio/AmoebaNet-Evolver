@@ -73,6 +73,8 @@ class Explorer(mp.Process):
     def run(self):
         # mentain a list of top performers 
         best_elements = []
+        best_id = "" 
+        best_score = 0
 
         while True:
             if self.mutation_count.value > self.mutation_search_max_count:
@@ -85,6 +87,7 @@ class Explorer(mp.Process):
                 while not self.finish_tasks.empty():
                     tasks.append(self.finish_tasks.get())
                 tasks = sorted(tasks, key=lambda x: x['score'], reverse=True)
+                
                 print('Best score on', tasks[0]['id'], 'is', tasks[0]['score'])
                 print('Worst score on', tasks[-1]['id'], 'is', tasks[-1]['score'])
                 
@@ -119,7 +122,8 @@ class Explorer(mp.Process):
                 for task in tasks:
                     # Add tasks to population for processing
                     self.population.put(task)
-                print(f"New tasks added to queue after mutating, Count: {len(tasks)}") 
+                print(f"New tasks addeto queue after mutating, Count: {len(tasks)}") 
+                print(f"Current best: {best_id} with score of: {best_score}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Population Based Training")
@@ -137,7 +141,7 @@ if __name__ == "__main__":
 
     population_size = args.population_size
     batch_size = 16
-    mutation_search_max_count = 4
+    mutation_search_max_count = 40
 
     pathlib.Path('checkpoints').mkdir(exist_ok=True)
     checkpoint_str = "checkpoints/task-%03d.pth"
@@ -150,7 +154,8 @@ if __name__ == "__main__":
         population.put(dict(id=i, score=0))
 
     workers = []
-    for i in range(0,2):
+    for i in range(0,4):
+        print("CREATING A WORKER")
         workers.append(Worker(mutation_count, mutation_search_max_count, population, finish_tasks, f"cuda:{i}"))
   
     print("Created workers")

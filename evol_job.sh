@@ -3,8 +3,8 @@
 #SBATCH --partition=gpu
 #SBATCH --output=job-%j.out
 #SBATCH --mem 32000M
-#SBATCH --time=40:00:00
-#SBATCH --gres=gpu:2
+#SBATCH --time=500:00:00
+#SBATCH --gres=gpu:4
 #SBATCH --mail-user=cwhite31@qub.ac.uk
 #SBATCH --mail-type=END
 
@@ -15,5 +15,5 @@ nvidia-smi
 
 export PYTHONPATH=$PYTHONPATH:/users/40175159/gridware/share/python/3.6.4/lib/python3.6/site-packages
 
-python3 main.py --device cuda --population_size 3
+python3 main.py --device cuda --population_size 10
 

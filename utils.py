@@ -96,6 +96,7 @@ def f(t):
 
 # ONLY COPY THE MUTATION FROM THE MODEL BEING EXPLORED
 def exploit_and_explore(top_checkpoint_path, bot_checkpoint_path):
+    print("EXPLOIT AND EXPLORE")
     """ Get checkpoint of best model, mutate operations, create new model and save"""
     checkpoint = torch.load(top_checkpoint_path)
     normal_ops = checkpoint['normal_ops']

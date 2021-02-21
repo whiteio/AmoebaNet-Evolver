@@ -44,6 +44,7 @@ class Trainer:
         self.normal_ops = checkpoint['normal_ops']
         self.reduction_ops = checkpoint['reduction_ops']
         self.model = amoeba.amoebanet(14, 3, 100, self.normal_ops, self.reduction_ops)
+        self.model = self.model.to(self.device)
         self.model.load_state_dict(checkpoint['model_state_dict'])
 
 
@@ -51,8 +52,7 @@ class Trainer:
         self.model.train()
 
         mean = [0.485, 0.456, 0.406]
-        std = [0.229, 0.224, 0.225]
-        
+        std = [0.229, 0.224, 0.225] 
         data_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.Resize(224),
@@ -76,7 +76,7 @@ class Trainer:
 
         lr = 0.01
         print(f"About to begin training on device: {self.device}")
-        for epoch in range(0):
+        for epoch in range(20):
             for x, y, _ in dataloader:
                 x, y = Variable(x.to(self.device)), Variable(y.to(self.device)).float()
                 output = self.model(x)
@@ -120,7 +120,7 @@ class Trainer:
 
         test_dataset = ChestXrayDataSet(data_dir="/mnt/scratch2/users/40175159/chest-data/chest-images", image_list_file="./labels/test_list.txt",
                                     transform=transforms.Compose([
-                                        transforms.Resize(256),
+                                        transforms.Resize(224),
                                         transforms.TenCrop(224),
                                         transforms.Lambda
                                         (lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops])),
@@ -142,9 +142,12 @@ class Trainer:
                 output = self.model(input_var)
                 output_mean = output.view(bs, n_crops, -1).mean(1)
                 pred = torch.cat((pred, output_mean.data), 0)
-                break # REMOVE THIS WHEN ACTUALLY DOING IT
 
         AUROCs = self.compute_AUCs(gt, pred)
         AUROC_avg = np.array(AUROCs).mean()
         print("Finished eval aucroc is: ", AUROC_avg)
+        print("Normal ops:")
+        print(*self.normal_ops, sep = ', ')
+        print("Reduction ops: ")
+        print(*self.reduction_ops, sep = '- ')
         return AUROC_avg       
