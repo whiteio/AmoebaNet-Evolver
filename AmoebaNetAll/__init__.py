@@ -145,7 +145,8 @@ class Cell(nn.Module):
 
         return torch.cat([_states[i] for i in self.concat], dim=1), skip
 
-
+# Returns AmoebaNet model, modified to return model using specific normal and reduction 
+# operations passed in through parameters
 def amoebanet(num_classes: int = 10,
                num_layers: int = 4,
                num_filters: int = 512,

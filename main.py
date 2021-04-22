@@ -14,12 +14,35 @@ from random import randint
 
 mp = _mp.get_context('spawn')
 
+##########################################################################################
+##########################################################################################
+# About main.py
+#
+# 
+# Sample command to run the system:
 # `$ python main.py --device cuda --population_size 10`
+#
+# Worker process is responsible from taking a model from the population queue,
+# training, evaluating and then placing the model on the finished queue and 
+# repeating this process until the correct number of mutations have occurred.
+#
+#
+# Explorer process is responsible for taking models off the finished queue, 
+# making a mutation to them and placing them back into the population queue.
+#
+# Note: There is no communication between processes to exchange model details, this
+# is all managed by the two queues to store the models information, the models are saved 
+# in a directory and they can be loaded by using 'torch.load(model_path...)'
+
+##########################################################################################
+##########################################################################################
 
 
+# Responsible for getting models from queue, and using trainer class
+# to put models on the finished queue
 class Worker(mp.Process):
     def __init__(self, mutation_count, mutation_search_max_count, population, finish_tasks,
-                 device):
+                 device, data_path):
         super().__init__()
         self.mutation_count = mutation_count
         self.population = population
@@ -33,6 +56,7 @@ class Worker(mp.Process):
                                normal_ops=normal_ops,
                                reduction_ops=reduction_ops,
                                optimizer=optimizer,
+                               data_path=data_path,
                                loss_fn=nn.BCEWithLogitsLoss(),
                                device=self.device)
 
@@ -40,17 +64,19 @@ class Worker(mp.Process):
         while True:
             if self.mutation_count.value > self.mutation_search_max_count:
                 break
-            # Train
+
+            # Get a model from population queue
             task = self.population.get()
             self.trainer.set_id(task['id'])
             checkpoint_path = "checkpoints/task-%03d.pth" % task['id']
             if os.path.isfile(checkpoint_path):
+                # Load model from path
                 self.trainer.load_checkpoint(checkpoint_path)
             try:
-                self.trainer.train()
-                score = self.trainer.eval()
-                self.trainer.save_checkpoint(checkpoint_path)
-                self.finish_tasks.put(dict(id=task['id'], score=score))
+                self.trainer.train() # Train model
+                score = self.trainer.eval() # Evaluate model 
+                self.trainer.save_checkpoint(checkpoint_path) # Save model and score
+                self.finish_tasks.put(dict(id=task['id'], score=score)) # Place on finished queue
             except KeyboardInterrupt:
                 break
 
@@ -63,7 +89,7 @@ class Explorer(mp.Process):
         self.finish_tasks = finish_tasks
         self.mutation_search_max_count = mutation_search_max_count
 
-    # Get k largest elements 
+    # Get k largest elements from list  
     def kLargest(self, arr, k, tasks):
         index_picked = randint(0,k-1)
 
@@ -71,11 +97,6 @@ class Explorer(mp.Process):
         return sorted_tops[index_picked]
 
     def run(self):
-        # mentain a list of top performers 
-        best_elements = []
-        best_id = "" 
-        best_score = 0
-
         while True:
             if self.mutation_count.value > self.mutation_search_max_count:
                 print("Reached mutation cout")
@@ -84,26 +105,32 @@ class Explorer(mp.Process):
                 print("Exploit and explore")
                 tasks = []
                 
+                # Create list of models by removing all from finished queue
                 while not self.finish_tasks.empty():
                     tasks.append(self.finish_tasks.get())
+
+                # Sort in descending order based on average AUC for each model
                 tasks = sorted(tasks, key=lambda x: x['score'], reverse=True)
                 
                 print('Best score on', tasks[0]['id'], 'is', tasks[0]['score'])
                 print('Worst score on', tasks[-1]['id'], 'is', tasks[-1]['score'])
                 
-                # Top 20% models mutated at random 
-                fraction = 0.25
+                # Top 50% in the case where theres only 4 models in population, 
+                # would be reduced to 20% if there was a larger population size
+                fraction = 0.50
                 cutoff = int(np.ceil(fraction * len(tasks)))
                 
+                # Get top performing models from list
                 tops = tasks[:cutoff]
 
+                # Save top performing models
                 for task in tops:
                     torch.save(torch.load("checkpoints/task-%03d.pth" % task['id']), "checkpoints/task-%03d.pth" % (task['id']+9999))
 
-                best_elements += tops
-
                 bottoms = tasks[len(tasks) - cutoff:]
 
+                # Replace model stored at bottom performing paths with a mutation of 
+                # a random best performing model 
                 for bottom in bottoms:
                     # Bottom make mutation of a random top state
                     top = self.kLargest(best_elements, len(tasks[:cutoff]), tasks)
@@ -112,18 +139,19 @@ class Explorer(mp.Process):
                     exploit_and_explore(top_checkpoint_path, bot_checkpoint_path)
                     with self.mutation_count.get_lock():
                         self.mutation_count.value += 1
+
+                # Mutate models stored at top performing paths
                 for top in tops:
                     # Top just make mutation of their current state
                     top_checkpoint_path = "checkpoints/task-%03d.pth" % (top['id']+9999)
                     bot_checkpoint_path = "checkpoints/task-%03d.pth" % top['id']
                     exploit_and_explore(top_checkpoint_path, bot_checkpoint_path)
                     with self.mutation_count.get_lock():
-                        self.mutation_count.value += 1
+                        self.mutation_count.value += 1 # Increment number of mutations made
                 for task in tasks:
-                    # Add tasks to population for processing
+                    # Add tasks to population to continue to next evolutionary cycle
                     self.population.put(task)
                 print(f"New tasks addeto queue after mutating, Count: {len(tasks)}") 
-                print(f"Current best: {best_id} with score of: {best_score}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Population Based Training")
@@ -131,14 +159,17 @@ if __name__ == "__main__":
                         help="")
     parser.add_argument("--population_size", type=int, default=10,
                         help="")
+    parser.add_argument("--data_path", type=str, deafult='/mnt/scratch2/users/40175159/chest-data/chest-images')
 
     args = parser.parse_args()
-    # mp.set_start_method("spawn")
     mp = mp.get_context('forkserver')
+
+    # Set device
     device = 'cuda:'
     if not torch.cuda.is_available():
         device = 'cpu'
 
+    data_path = args.data_path
     population_size = args.population_size
     batch_size = 16
     mutation_search_max_count = 30
@@ -154,12 +185,14 @@ if __name__ == "__main__":
         population.put(dict(id=i, score=0))
 
     workers = []
+
+    print("Create worker processes")
     for i in range(0,4):
-        print("CREATING A WORKER")
-        workers.append(Worker(mutation_count, mutation_search_max_count, population, finish_tasks, "cuda"))
+        workers.append(Worker(mutation_count, mutation_search_max_count, population, finish_tasks, "cuda", data_path))
   
-    print("Created workers")
+    print("Create Explorer process")
     workers.append(Explorer(mutation_count, mutation_search_max_count, population, finish_tasks))
+
     [w.start() for w in workers]
     print("Started all workers")
     [w.join() for w in workers]

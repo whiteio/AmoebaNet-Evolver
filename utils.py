@@ -16,14 +16,22 @@ from AmoebaNetAll.operations import (none,
         separable_5x5_2,
         dil_2_separable_5x5_2)
 
-NUM_CLASSES = 14
-NUM_NORMAL = 3
-NUM_FILTERS = 100
+##########################################################################################
+##########################################################################################
+# About utils.py 
+#
+# Contains key utility functions that are used by other classes within the system
+#
+##########################################################################################
+##########################################################################################
 
+NUM_CLASSES = 14 # Number of classes in dataset
+NUM_NORMAL = 3 # Number of normal cells in model
+NUM_FILTERS = 100 # Number of filters in first normal cell will be (100 // 4)**2
+
+# Returns the initial models to add to the population queue where
+# the returned model will contain one mutation upon the base model
 def get_model():
-    # IMPORTANT! - FIRST OPERATION SHOULD BE CONV_1X1
-    """Returns model with random mutation to a single op"""
-    # Create method in amoeba that randomly mutates an op
     print("Getting initial model")
     NORMAL_OPERATIONS = [
         (1, conv_1x1),
@@ -58,21 +66,21 @@ def get_model():
 
     current_op = ops[type_to_mutate][op_to_mutate_index][1]
 
-    ops_tuple_to_list = f(ops[type_to_mutate])
+    ops_tuple_to_list = convert_data_structure_list_tuple(ops[type_to_mutate])
 
     if random.random() >= 0.95:
         ops_tuple_to_list[op_to_mutate_index][1] = none
     else:
         ops_tuple_to_list[op_to_mutate_index][1] = get_replacement_op(current_op)
 
-    ops[type_to_mutate] = f(ops_tuple_to_list)
+    ops[type_to_mutate] = convert_data_structure_list_tuple(ops_tuple_to_list)
 
     model = amoeba.amoebanet(NUM_CLASSES, NUM_NORMAL, NUM_FILTERS, ops[0], ops[1])
 
     return model, ops[0], ops[1]
 
+# Returns the optimizer used for the model and learning rate passed in
 def get_optimizer(model, LR):
-    """Helper method to get optimizer for model with lr=LR"""
     optimizer = optim.SGD(
         filter(
             lambda p: p.requires_grad,
@@ -83,6 +91,7 @@ def get_optimizer(model, LR):
 
     return optimizer
 
+# Returns a randomly selected operation from NAS search space
 def get_replacement_op(current_op):
     print("Getting replacement op")
     nas_space = [
@@ -105,18 +114,21 @@ def get_replacement_op(current_op):
     else:
         return nas_space[new_op_index]
 
-def f(t):
+# Converts a list to tuple and visa versa
+def convert_data_structure_list_tuple(t):
     if type(t) == list or type(t) == tuple:
-        return [f(i) for i in t]
+        return [convert_data_structure_list_tuple(i) for i in t]
     return t
 
-# ONLY COPY THE MUTATION FROM THE MODEL BEING EXPLORED
+# Makes a mutation to a model stored at bot_checkpoint_path, it will be a mutation 
+# of the model stored at top_checkpoint_path
 def exploit_and_explore(top_checkpoint_path, bot_checkpoint_path):
-    print("EXPLOIT AND EXPLORE")
+    print("Exploit and Explore")
     """ Get checkpoint of best model, mutate operations, create new model and save"""
     checkpoint = torch.load(top_checkpoint_path)
     normal_ops = checkpoint['normal_ops']
     reduction_ops = checkpoint['reduction_ops']
+
     print("Making mutation")
     ops = [normal_ops, reduction_ops]
 
@@ -125,17 +137,18 @@ def exploit_and_explore(top_checkpoint_path, bot_checkpoint_path):
 
     current_op = ops[type_to_mutate][op_to_mutate_index][1]
 
-    ops_tuple_to_list = f(ops[type_to_mutate])
+    ops_tuple_to_list = convert_data_structure_list_tuple(ops[type_to_mutate])
     
     if random.random() >= 0.95:
         ops_tuple_to_list[op_to_mutate_index][1] = none
     else:
         ops_tuple_to_list[op_to_mutate_index][1] = get_replacement_op(current_op)
 
-    ops[type_to_mutate] = f(ops_tuple_to_list)
+    ops[type_to_mutate] = convert_data_structure_list_tuple(ops_tuple_to_list)
 
     model = amoeba.amoebanet(NUM_CLASSES, NUM_NORMAL, NUM_FILTERS, ops[0], ops[1])
     optimizer = get_optimizer(model, 0.01)
+
     print(f"Made mutation on device: {torch.cuda.current_device()}")
     checkpoint = dict(model_state_dict=model.state_dict(),
                       optim_state_dict=optimizer.state_dict(),

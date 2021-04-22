@@ -5,6 +5,17 @@ from torch import Tensor, nn
 
 __all__: List[str] = []
 
+##########################################################################################
+##########################################################################################
+# About operations.py
+#
+# Operations used in AmoebaNet models
+#
+# The standard convolution and pooling operations were already implemented by I have 
+# implemented all of the separable convolution operations seen below
+#
+##########################################################################################
+##########################################################################################
 
 class Operation(nn.Module):
     """Includes the operation name into the representation string for

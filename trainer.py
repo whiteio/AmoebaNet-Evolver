@@ -14,16 +14,23 @@ import random
 import torch
 import torch.nn as nn
 
+##########################################################################################
+##########################################################################################
+# About trainer.py
+#
+# Trainer is responsible for loading, training, evaluating and saving a given model
+#
+##########################################################################################
+##########################################################################################
+
 class Trainer:
-
-    def __init__(self, model, normal_ops, reduction_ops, optimizer, loss_fn=None, device=None):
-        """Note: Trainer objects don't know about the database."""
-
+    def __init__(self, model, normal_ops, reduction_ops, optimizer, data_path, loss_fn=None, device=None):
         self.model = model
         self.model = nn.DataParallel(self.model)
         self.normal_ops = normal_ops
         self.reduction_ops = reduction_ops
         self.optimizer = optimizer
+        self.data_path = data_path
         self.loss_fn = loss_fn
         self.task_id = None
         self.device = device
@@ -32,6 +39,7 @@ class Trainer:
     def set_id(self, num):
         self.task_id = num
 
+    # Save model to checkpoint_path
     def save_checkpoint(self, checkpoint_path):
         checkpoint = dict(model_state_dict=self.model.state_dict(),
                           optim_state_dict=self.optimizer.state_dict(),
@@ -39,6 +47,7 @@ class Trainer:
                           reduction_ops=self.reduction_ops)
         torch.save(checkpoint, checkpoint_path)
 
+    # Load model from checkpoint_path
     def load_checkpoint(self, checkpoint_path):
         checkpoint = torch.load(checkpoint_path)
 
@@ -49,6 +58,7 @@ class Trainer:
         self.model = self.model.to(self.device)
         self.model = nn.DataParallel(self.model)
 
+    # Train model for 20 epochs
     def train(self):
         self.model.train()
 
@@ -65,7 +75,7 @@ class Trainer:
         ])
 
         transformed_dataset = CXR.CXRDataset(
-            path_to_images="/mnt/scratch2/users/40175159/chest-data/chest-images",
+            path_to_images=self.data_path,
             fold='train',
             transform=data_transforms)
 
@@ -91,7 +101,7 @@ class Trainer:
             self.optimizer = get_optimizer(self.model, lr)
             print(f"Completed epoch on {self.device}")
 
-
+    # Compute AUC scores
     def compute_AUCs(self, gt, pred):
         AUROCs = []
         gt_np = gt.cpu().numpy()
@@ -103,9 +113,8 @@ class Trainer:
                 pass
         return AUROCs
 
-
+    # Evaluate the trained model
     def eval(self):
-
         self.model.eval()
 
         cudnn.benchmark = True
@@ -119,7 +128,7 @@ class Trainer:
         normalize = transforms.Normalize([0.485, 0.456, 0.406],
                                      [0.229, 0.224, 0.225])
 
-        test_dataset = ChestXrayDataSet(data_dir="/mnt/scratch2/users/40175159/chest-data/chest-images", image_list_file="./labels/test_list.txt",
+        test_dataset = ChestXrayDataSet(data_dir=self.data_path, image_list_file="./labels/test_list.txt",
                                     transform=transforms.Compose([
                                         transforms.Resize(224),
                                         transforms.TenCrop(224),

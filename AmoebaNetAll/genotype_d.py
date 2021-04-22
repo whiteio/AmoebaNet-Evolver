@@ -6,6 +6,7 @@ from AmoebaNetAll.operations import (avg_pool_3x3, conv_1x1, conv_1x7_7x1, conv_
 __all__: List[str] = []
 
 # The genotype for AmoebaNet-D
+
 D_NORMAL_OPERATIONS = [
     (1, conv_1x1),
     (1, max_pool_3x3),

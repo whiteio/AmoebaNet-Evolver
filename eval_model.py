@@ -15,6 +15,10 @@ import torchvision
 from sklearn.metrics import roc_auc_score
 from readData import ChestXrayDataSet
 
+###########################################################
+# EXTERNAL FUNCTION
+###########################################################
+
 def make_pred_multilabel(data_transforms, model, PATH_TO_IMAGES):
     """
     Gives predictions for test fold and calculates AUCs using previously trained model
