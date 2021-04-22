@@ -92,7 +92,7 @@ class Explorer(mp.Process):
                 print('Worst score on', tasks[-1]['id'], 'is', tasks[-1]['score'])
                 
                 # Top 20% models mutated at random 
-                fraction = 0.2
+                fraction = 0.25
                 cutoff = int(np.ceil(fraction * len(tasks)))
                 
                 tops = tasks[:cutoff]
@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     population_size = args.population_size
     batch_size = 16
-    mutation_search_max_count = 40
+    mutation_search_max_count = 30
 
     pathlib.Path('checkpoints').mkdir(exist_ok=True)
     checkpoint_str = "checkpoints/task-%03d.pth"
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     workers = []
     for i in range(0,4):
         print("CREATING A WORKER")
-        workers.append(Worker(mutation_count, mutation_search_max_count, population, finish_tasks, f"cuda:{i}"))
+        workers.append(Worker(mutation_count, mutation_search_max_count, population, finish_tasks, "cuda"))
   
     print("Created workers")
     workers.append(Explorer(mutation_count, mutation_search_max_count, population, finish_tasks))

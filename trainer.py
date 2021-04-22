@@ -11,6 +11,8 @@ from sklearn import metrics
 import AmoebaNetAll as amoeba
 import numpy as np
 import random
+import torch
+import torch.nn as nn
 
 class Trainer:
 
@@ -18,13 +20,13 @@ class Trainer:
         """Note: Trainer objects don't know about the database."""
 
         self.model = model
+        self.model = nn.DataParallel(self.model)
         self.normal_ops = normal_ops
         self.reduction_ops = reduction_ops
         self.optimizer = optimizer
         self.loss_fn = loss_fn
         self.task_id = None
         self.device = device
-
         self.loss_fn = self.loss_fn.to(device)
 
     def set_id(self, num):
@@ -45,8 +47,7 @@ class Trainer:
         self.reduction_ops = checkpoint['reduction_ops']
         self.model = amoeba.amoebanet(14, 3, 100, self.normal_ops, self.reduction_ops)
         self.model = self.model.to(self.device)
-        self.model.load_state_dict(checkpoint['model_state_dict'])
-
+        self.model = nn.DataParallel(self.model)
 
     def train(self):
         self.model.train()
@@ -88,7 +89,7 @@ class Trainer:
 
             lr *= 0.95
             self.optimizer = get_optimizer(self.model, lr)
-            print("Epoch complete")
+            print(f"Completed epoch on {self.device}")
 
 
     def compute_AUCs(self, gt, pred):

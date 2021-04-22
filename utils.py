@@ -50,10 +50,26 @@ def get_model():
         (2, avg_pool_3x3),
         (3, conv_1x1),
     ]
+   
+    ops = [NORMAL_OPERATIONS, REDUCTION_OPERATIONS]
 
-    model = amoeba.amoebanet(NUM_CLASSES, NUM_NORMAL, NUM_FILTERS, NORMAL_OPERATIONS, REDUCTION_OPERATIONS)
+    type_to_mutate = random.randint(0,1)
+    op_to_mutate_index = random.randint(0, 9)
 
-    return model, NORMAL_OPERATIONS, REDUCTION_OPERATIONS
+    current_op = ops[type_to_mutate][op_to_mutate_index][1]
+
+    ops_tuple_to_list = f(ops[type_to_mutate])
+
+    if random.random() >= 0.95:
+        ops_tuple_to_list[op_to_mutate_index][1] = none
+    else:
+        ops_tuple_to_list[op_to_mutate_index][1] = get_replacement_op(current_op)
+
+    ops[type_to_mutate] = f(ops_tuple_to_list)
+
+    model = amoeba.amoebanet(NUM_CLASSES, NUM_NORMAL, NUM_FILTERS, ops[0], ops[1])
+
+    return model, ops[0], ops[1]
 
 def get_optimizer(model, LR):
     """Helper method to get optimizer for model with lr=LR"""
@@ -126,5 +142,3 @@ def exploit_and_explore(top_checkpoint_path, bot_checkpoint_path):
                       normal_ops=ops[0],
                       reduction_ops=ops[1])
     torch.save(checkpoint, bot_checkpoint_path)
-
-
