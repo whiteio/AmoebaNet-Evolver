@@ -1,15 +1,10 @@
 <!-- PROJECT LOGO -->
-<p align="center">
-  <h1 align="center">AmoebaNet Evolver - PyTorch</h3>
+# AmoebaNet Evolver - PyTorch
 
-  <p align="center">
-    System to evolve the structure of AmoebaNet-D to attempt to improve performance by making mutations to the cell operations used. 
-    <br />
-    <a href="https://github.com/whiteio/AmoebaNet-Evolver"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="">View Demo</a>
-    ·
+System to evolve the structure of AmoebaNet-D to attempt to improve performance by making mutations to the cell operations used. 
+
+<p>
+  <p>
     <a href="https://github.com/whiteio/AmoebaNet-Evolver/issues">Report Bug</a>
     ·
     <a href="https://github.com/whiteio/AmoebaNet-Evolver/issues">Request Feature</a>
