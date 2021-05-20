@@ -1,11 +1,11 @@
 #!/bin/bash -l
-#SBATCH --job-name=Evolver
+#SBATCH --job-name=AmoebaNetEvolver
 #SBATCH --partition=gpu
 #SBATCH --output=job-%j.out
 #SBATCH --mem 32000M
 #SBATCH --time=500:00:00
 #SBATCH --gres=gpu:1
-#SBATCH --mail-user=cwhite31@qub.ac.uk
+#SBATCH --mail-user=name@email.com
 #SBATCH --mail-type=END
 
 module add nvidia-cuda
