@@ -107,7 +107,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/whiteio/AmoebaNet-Evolver/issues) for a list of proposed features (and known issues).
 
 
 
@@ -134,18 +134,17 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email
+Christopher White - chris@cwhite.io
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/whiteio/AmoebaNet-Evolver](https://github.com/whiteio/AmoebaNet-Evolver)
 
 
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-* []()
-* []()
-* []()
+* [GPipe AmoebaNet-D implementation](https://github.com/kakaobrain/torchgpipe)
+* [Population based training](https://github.com/voiler/PopulationBasedTraining)
 
 
 
@@ -160,7 +159,7 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 [stars-shield]: https://img.shields.io/github/stars/github_username/repo.svg?style=for-the-badge
 [stars-url]: https://github.com/github_username/repo/stargazers
 [issues-shield]: https://img.shields.io/github/issues/github_username/repo.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo/issues
+[issues-url]: https://github.com/whiteio/AmoebaNet-Evolver/issues
 [license-shield]: https://img.shields.io/github/license/github_username/repo.svg?style=for-the-badge
 [license-url]: https://github.com/github_username/repo/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
