@@ -56,16 +56,23 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started:
-**To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`whiteio`, `AmoebaNet-Evolver`, `chris@cwhite.io`, `AmoebaNet Evolver - PyTorch`, `System to evolve the structure of AmoebaNet-D to attempt to improve performance by making mutations to the cell operations used.`
-
 This project can be used to evolve the structure of AmoebaNet-D to improve classification performance, as it was created through evolution using the CIFAR-10 dataset which may not be as effective in alternative domains such as chest infection classification. The dataset currently used is ChestX-ray14 and the models are configured for multi-label image classification. The average AUROC score is currently used as the metric for deciding which models perform best during each cycle.
+
+## Key Details
+* Each model is created by mutating the best performing model from the previous cycle
+* A cycle involves mutating the population of models, training for a user definable number of epochs and evaluating 
+* AmoebaNet-D is initial structure used
+* Mutations occur to the operations of the normal and reduction cells
+* Each cycle one operation mutation occurs per model
+* Operations are randomly picked from a subset of NAS search space (operations already used in AmoebaNet-A,B,C and D)
+* Results are output to log file containing the evaluation scores obtained for each model, along with the models normal and reduction operations for reproducability
+
+
 
 ### Built With
 
 * PyTorch
-* [GPipe Pytorch implementation of AmoebaNet-D](https://github.com/kakaobrain/torchgpipe/tree/master/benchmarks/models/amoebanet)
+* [GPipe](https://github.com/kakaobrain/torchgpipe/tree/master/benchmarks/models/amoebanet) - Pytorch implementation of AmoebaNet-D
 * Modified hyperparameter tuning code to be used for evolution, obtained from [here](https://github.com/voiler/PopulationBasedTraining)
 
 
