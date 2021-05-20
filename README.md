@@ -58,14 +58,15 @@
 
 Here's a blank template to get started:
 **To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`github_username`, `repo_name`, `twitter_handle`, `email`, `project_title`, `project_description`
+`whiteio`, `AmoebaNet-Evolver`, `chris@cwhite.io`, `AmoebaNet Evolver - PyTorch`, `System to evolve the structure of AmoebaNet-D to attempt to improve performance by making mutations to the cell operations used.`
 
+This project can be used to evolve the structure of AmoebaNet-D to improve classification performance, as it was created through evolution using the CIFAR-10 dataset which may not be as effective in alternative domains such as chest infection classification. The dataset currently used is ChestX-ray14 and the models are configured for multi-label image classification. The average AUROC score is currently used as the metric for deciding which models perform best during each cycle.
 
 ### Built With
 
-* []()
-* []()
-* []()
+* PyTorch
+* [GPipe Pytorch implementation of AmoebaNet-D](https://github.com/kakaobrain/torchgpipe/tree/master/benchmarks/models/amoebanet)
+* Modified hyperparameter tuning code to be used for evolution, obtained from [here](https://github.com/voiler/PopulationBasedTraining)
 
 
 
@@ -76,21 +77,17 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+* [ChestX-ray14](https://nihcc.app.box.com/v/ChestXray-NIHCC) dataset (hopefully the evolver will be abstracted soon to apply it to different domains easily)
 
 ### Installation
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/whiteio/AmoebaNet-Evolver.git
    ```
-2. Install NPM packages
+2. Install required packages
    ```sh
-   npm install
+   pip install -r requirements.txt
    ```
 
 
@@ -99,8 +96,6 @@ This is an example of how to list things you need to use the software and how to
 ## Usage
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
 
 
 
