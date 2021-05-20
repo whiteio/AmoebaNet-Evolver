@@ -8,7 +8,7 @@ from torch.autograd import Variable
 from readData import ChestXrayDataSet
 import torch.backends.cudnn as cudnn
 from sklearn import metrics
-import AmoebaNetAll as amoeba
+import AmoebaNet as amoeba
 import numpy as np
 import random
 import torch

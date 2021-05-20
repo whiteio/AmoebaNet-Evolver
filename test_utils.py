@@ -1,7 +1,7 @@
 from utils import *
 import pytest
 
-from AmoebaNetAll.operations import (none,
+from AmoebaNet.operations import (none,
         avg_pool_3x3,
         max_pool_3x3,
         max_pool_2x2,

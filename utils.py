@@ -1,10 +1,10 @@
 import numpy as np
 import torch
 import torch.optim as optim
-import AmoebaNetAll as amoeba
+import AmoebaNet as amoeba
 import random
 
-from AmoebaNetAll.operations import (none,
+from AmoebaNet.operations import (none,
         avg_pool_3x3,
         max_pool_3x3,
         max_pool_2x2,

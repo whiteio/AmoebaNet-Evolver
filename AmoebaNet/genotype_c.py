@@ -1,6 +1,6 @@
 from typing import List
 
-from AmoebaNetAll.operations import (avg_pool_3x3, max_pool_2x2, max_pool_3x3, 
+from AmoebaNet.operations import (avg_pool_3x3, max_pool_2x2, max_pool_3x3, 
                                     none, separable_3x3_2, separable_7x7_2, separable_5x5_2)
 
 __all__: List[str] = []

@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING, Iterator, List, Tuple, Union, cast
 import torch
 from torch import Tensor, nn
 
-from AmoebaNetAll.genotype_d import (D_NORMAL_CONCAT, D_NORMAL_OPERATIONS, D_REDUCTION_CONCAT,
+from AmoebaNet.genotype_d import (D_NORMAL_CONCAT, D_NORMAL_OPERATIONS, D_REDUCTION_CONCAT,
                                 D_REDUCTION_OPERATIONS)
 
-from AmoebaNetAll.operations import FactorizedReduce
+from AmoebaNet.operations import FactorizedReduce
 
 __all__ = ['amoebanet']
 
