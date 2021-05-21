@@ -9,6 +9,7 @@ from torchvision.datasets import MNIST
 import torchvision.transforms as transforms
 from trainer import Trainer
 from utils import get_optimizer, exploit_and_explore, get_model
+from random import randrange
 
 from random import randint
 
@@ -120,60 +121,53 @@ class Explorer(mp.Process):
                 fraction = 0.50
                 cutoff = int(np.ceil(fraction * len(tasks)))
                 
-                # Get top performing models from list
                 tops = tasks[:cutoff]
 
-                # Save top performing models
-                for task in tops:
-                    torch.save(torch.load("checkpoints/task-%03d.pth" % task['id']), "checkpoints/task-%03d.pth" % (task['id']+9999))
+                for model in reversed(tasks):
+                    if model not in tops:
+                        random_top_model = tops[randrange(len(tops))-1]
+                        top_checkpoint_path = "checkpoints/task-%03d.pth" % random_top_model['id']
+                    else:
+                        top_checkpoint_path = "checkpoints/task-%03d.pth" % model['id']
 
-                bottoms = tasks[len(tasks) - cutoff:]
+                    bot_checkpoint_path = "checkpoints/task-%03d.pth" % model['id']
 
-                # Replace model stored at bottom performing paths with a mutation of 
-                # a random best performing model 
-                for bottom in bottoms:
-                    # Bottom make mutation of a random top state
-                    top = self.kLargest(best_elements, len(tasks[:cutoff]), tasks)
-                    top_checkpoint_path = "checkpoints/task-%03d.pth" % (top['id']+9999)
-                    bot_checkpoint_path = "checkpoints/task-%03d.pth" % bottom['id']
                     exploit_and_explore(top_checkpoint_path, bot_checkpoint_path)
+
                     with self.mutation_count.get_lock():
                         self.mutation_count.value += 1
 
-                # Mutate models stored at top performing paths
-                for top in tops:
-                    # Top just make mutation of their current state
-                    top_checkpoint_path = "checkpoints/task-%03d.pth" % (top['id']+9999)
-                    bot_checkpoint_path = "checkpoints/task-%03d.pth" % top['id']
-                    exploit_and_explore(top_checkpoint_path, bot_checkpoint_path)
-                    with self.mutation_count.get_lock():
-                        self.mutation_count.value += 1 # Increment number of mutations made
-                for task in tasks:
-                    # Add tasks to population to continue to next evolutionary cycle
-                    self.population.put(task)
-                print(f"New tasks addeto queue after mutating, Count: {len(tasks)}") 
+                    self.population.put(model)
+
+                    print('Models from previous cycle mutated and replaced population')
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Population Based Training")
-    parser.add_argument("--device", type=str, default='cuda',
-                        help="")
-    parser.add_argument("--population_size", type=int, default=10,
-                        help="")
-    parser.add_argument("--data_path", type=str, deafult='/mnt/scratch2/users/40175159/chest-data/chest-images')
+    parser.add_argument("--device", type=str, default='cuda:', help="")
+    parser.add_argument("--population_size", type=int, default=10, help="")
+    parser.add_argument("--data_path", type=str, deafult='')
+    parser.add_argument("--test_mode", type=bool, deafult=False)
+    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--mutation_count", type=int, default=30)
+    parser.add_argument("--gpu-count", type=int, default=1)
 
     args = parser.parse_args()
     mp = mp.get_context('forkserver')
 
     # Set device
-    device = 'cuda:'
     if not torch.cuda.is_available():
         device = 'cpu'
+    else:
+        device = args.device
 
     data_path = args.data_path
     population_size = args.population_size
-    batch_size = 16
-    mutation_search_max_count = 30
+    batch_size = args.batch_size
+    mutation_search_max_count = args.mutation_count
+    gpu_count = args.gpu_count
 
+    # Create directory to store model checkpoints
     pathlib.Path('checkpoints').mkdir(exist_ok=True)
     checkpoint_str = "checkpoints/task-%03d.pth"
 
@@ -186,21 +180,20 @@ if __name__ == "__main__":
 
     workers = []
 
-    print("Create worker processes")
-    for i in range(0,4):
-        workers.append(Worker(mutation_count, mutation_search_max_count, population, finish_tasks, "cuda", data_path))
+    print("Create Workers")
+    for i in range(0, gpu_count):
+        workers.append(Worker(mutation_count, mutation_search_max_count, population, finish_tasks, f"{device}{i}", data_path))
   
-    print("Create Explorer process")
+    print("Create Explorer")
     workers.append(Explorer(mutation_count, mutation_search_max_count, population, finish_tasks))
 
     [w.start() for w in workers]
-    print("Started all workers")
     [w.join() for w in workers]
-    print("Finished all workers")
+
     task = []
     while not finish_tasks.empty():
         task.append(finish_tasks.get())
     while not population.empty():
         task.append(population.get())
     task = sorted(task, key=lambda x: x['score'], reverse=True)
-    print('best score in last run: ', task[0]['id'], 'is', task[0]['score'])
+    print('Best score in last run: ', task[0]['id'], 'is', task[0]['score'])

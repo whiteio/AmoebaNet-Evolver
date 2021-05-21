@@ -60,6 +60,8 @@ class Trainer:
 
     # Train model for 20 epochs
     def train(self):
+        torch.manual_seed(0)
+        cudnn.benchmark = True
         self.model.train()
 
         mean = [0.485, 0.456, 0.406]
