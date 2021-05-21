@@ -90,13 +90,6 @@ class Explorer(mp.Process):
         self.finish_tasks = finish_tasks
         self.mutation_search_max_count = mutation_search_max_count
 
-    # Get k largest elements from list  
-    def kLargest(self, arr, k, tasks):
-        index_picked = randint(0,k-1)
-
-        sorted_tops = sorted(tasks, key=lambda x: x['score'], reverse=True)
-        return sorted_tops[index_picked]
-
     def run(self):
         while True:
             if self.mutation_count.value > self.mutation_search_max_count:
