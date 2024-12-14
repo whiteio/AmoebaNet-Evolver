@@ -3,19 +3,8 @@
 
 System to evolve the structure of AmoebaNet-D to attempt to improve performance by making mutations to the cell operations used. 
 
-<p>
-  <p>
-    <a href="https://github.com/whiteio/AmoebaNet-Evolver/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/whiteio/AmoebaNet-Evolver/issues">Request Feature</a>
-  </p>
-</p>
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
 
 This project can be used to evolve the structure of AmoebaNet-D to improve classification performance, as it was created through evolution using the CIFAR-10 dataset which may not be as effective in alternative domains such as chest infection classification. The dataset currently used is ChestX-ray14 and the models are configured for multi-label image classification. The average AUROC score is currently used as the metric for deciding which models perform best during each cycle.
 
@@ -45,7 +34,7 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
-* [ChestX-ray14](https://nihcc.app.box.com/v/ChestXray-NIHCC) dataset (hopefully the evolver will be abstracted soon to apply it to different domains easily)
+* [ChestX-ray14](https://nihcc.app.box.com/v/ChestXray-NIHCC) dataset
 
 ### Installation
 
